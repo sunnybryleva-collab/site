@@ -384,13 +384,20 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 <script>
 (function(){
+  var last = 0;
+  function h(){ return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight); }
   function send(){
-    var h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-    parent.postMessage({ nastasyaHeight: h }, '*');
+    var v = h();
+    if (Math.abs(v - last) < 24) return;   // шлём только при реальном изменении
+    last = v;
+    parent.postMessage({ nastasyaHeight: v }, '*');
   }
   window.addEventListener('load', send);
-  setInterval(send, 700);
-  if (window.ResizeObserver) new ResizeObserver(send).observe(document.body);
+  document.addEventListener('DOMContentLoaded', send);
+  window.addEventListener('resize', send);
+  if (window.ResizeObserver) new ResizeObserver(send).observe(document.documentElement);
+  setTimeout(send, 400); setTimeout(send, 1200); setTimeout(send, 3000);
+  setInterval(send, 2500);
 })();
 </script>
 </body>
